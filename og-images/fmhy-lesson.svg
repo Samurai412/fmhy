@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#ffffff" />
+  <rect x="36" y="36" width="1128" height="558" rx="16" fill="#ffffff" stroke="#e4e4e7" stroke-width="1.5" />
+
+  <!-- Brand Header -->
+  <g transform="translate(90, 105)">
+    <circle cx="6" cy="6" r="5" fill="#09090b" />
+    <text x="24" y="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="700" fill="#09090b" letter-spacing="0.1em">ATLAS</text>
+    <text x="92" y="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="400" fill="#71717a">/</text>
+    <text x="108" y="11" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="500" fill="#52525b">Blog</text>
+  </g>
+
+  <!-- Note Title -->
+  <text x="90" y="210" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="60" font-weight="800" fill="#09090b" letter-spacing="-0.035em">FMHY</text>
+
+  <!-- Note Excerpt -->
+  <text x="90" y="272" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="400" fill="#52525b" letter-spacing="-0.01em">What is FMHY FMHY is a ocool place Do you agree yessir -</text>
+<text x="90" y="308" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="400" fill="#52525b" letter-spacing="-0.01em">Pewpewpew</text>
+
+  <!-- Footer Metadata -->
+  <g transform="translate(90, 540)">
+    <text x="0" y="0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#71717a" letter-spacing="0.02em">fmhy</text>
+  </g>
+
+  <text x="1110" y="540" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="15" font-weight="600" fill="#71717a" text-anchor="end">github.io</text>
+</svg>
