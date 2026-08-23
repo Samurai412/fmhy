@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Blog</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-primary: #070a12;
+      --bg-pill: rgba(18, 24, 38, 0.45);
+      --bg-card: rgba(22, 28, 40, 0.55);
+      --bg-card-hover: rgba(30, 39, 58, 0.8);
+      --bg-elevated: rgba(30, 39, 58, 0.6);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: rgba(255, 255, 255, 0.15);
+      --border-hover: rgba(59, 130, 246, 0.6);
+      --accent: #10b981;
+      --accent-light: #34d399;
+      --accent-glow: rgba(16, 185, 129, 0.2);
+      --accent-border: rgba(16, 185, 129, 0.4);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.2);
+      --orb-1: rgba(99, 102, 241, 0.35);
+      --orb-2: rgba(16, 185, 129, 0.3);
+      --shadow: 0 10px 30px rgba(0,0,0,0.4);
+      --radius-sm: 8px;
+      --radius-md: 20px;
+      --radius-lg: 32px;
+    }
+    :root.theme-light {
+      --bg-primary: #f8fafc;
+      --bg-pill: rgba(255, 255, 255, 0.7);
+      --bg-card: rgba(255, 255, 255, 0.85);
+      --bg-card-hover: #ffffff;
+      --bg-elevated: rgba(241, 245, 249, 0.9);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border: rgba(0, 0, 0, 0.1);
+      --border-hover: rgba(59, 130, 246, 0.5);
+      --accent: #059669;
+      --accent-light: #10b981;
+      --accent-glow: rgba(5, 150, 105, 0.15);
+      --accent-border: rgba(5, 150, 105, 0.35);
+      --danger: #dc2626;
+      --danger-glow: rgba(220, 38, 38, 0.15);
+      --orb-1: rgba(59, 130, 246, 0.25);
+      --orb-2: rgba(16, 185, 129, 0.2);
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    body::before {
+      content: ''; position: fixed; top: -15%; left: 5%; width: 550px; height: 550px;
+      background: radial-gradient(circle, var(--orb-1) 0%, transparent 70%);
+      filter: blur(90px); z-index: -2; pointer-events: none;
+      animation: orbFloat1 20s ease-in-out infinite alternate;
+    }
+    body::after {
+      content: ''; position: fixed; bottom: -10%; right: 5%; width: 650px; height: 650px;
+      background: radial-gradient(circle, var(--orb-2) 0%, transparent 75%);
+      filter: blur(100px); z-index: -2; pointer-events: none;
+      animation: orbFloat2 24s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes orbFloat1 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(70px, -50px) scale(1.12); } 100% { transform: translate(-30px, 60px) scale(0.95); } }
+    @keyframes orbFloat2 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-60px, 40px) scale(1.08); } 100% { transform: translate(40px, -50px) scale(0.92); } }
+
+    .nav-header {
+      position: sticky; top: 24px; z-index: 100; max-width: 1100px;
+      margin: 24px auto 40px auto; padding: 10px 24px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(32px) saturate(240%);
+      -webkit-backdrop-filter: blur(32px) saturate(240%);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      border-radius: 9999px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.45), 0 20px 45px rgba(0, 0, 0, 0.5);
+    }
+    .nav-left { display: flex; align-items: center; gap: 14px; }
+    .site-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text-primary); padding: 6px 16px; border-radius: 9999px; font-size: 0.85rem;
+      font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s ease;
+    }
+    .nav-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    .admin-container { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px 24px; }
+    .admin-header {
+      background: var(--bg-card); backdrop-filter: blur(24px); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 32px; margin-bottom: 32px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+    }
+    .admin-title-area h1 { font-size: 2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; }
+    .admin-subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+
+    .tab-bar {
+      display: flex; gap: 10px; border-bottom: 1px solid var(--border); margin-bottom: 32px; overflow-x: auto; padding-bottom: 10px;
+    }
+    .tab-btn {
+      background: transparent; border: none; color: var(--text-secondary); padding: 10px 20px;
+      border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+    }
+    .tab-btn:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+    .tab-btn.active { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent-border); }
+
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    .card-panel {
+      background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 28px; margin-bottom: 24px; box-shadow: var(--shadow);
+    }
+    .panel-title { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+
+    .posts-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .posts-table th, .posts-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+    .posts-table th { background: rgba(255,255,255,0.04); color: var(--text-secondary); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; }
+    .posts-table td { font-size: 0.95rem; }
+
+    .btn-action {
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-primary);
+      padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; margin-right: 6px; transition: all 0.2s ease;
+    }
+    .btn-action:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-action.btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-weight: 600; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; }
+    .form-input, .form-textarea {
+      width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 16px; color: var(--text-primary); font-size: 0.95rem; font-family: inherit; outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+    .form-textarea { min-height: 120px; resize: vertical; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+      z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+      width: 100%; max-width: 750px; max-height: 90vh; overflow-y: auto; padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+    .modal-title { font-size: 1.4rem; font-weight: 700; }
+
+    .nav-item-row {
+      display: flex; gap: 12px; align-items: center; margin-bottom: 12px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+    }
+    .guestbook-item {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px;
+    }
+    .gb-author { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
+    .gb-date { font-size: 0.8rem; color: var(--text-muted); }
+    .gb-text { margin-top: 8px; font-size: 0.95rem; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <header class="nav-header">
+    <div class="nav-left">
+      <a href="index.html" class="nav-btn">← Site Index</a>
+      <a href="index.html" class="site-title">Blog</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn" onclick="openTokenModal()">Authentication</button>
+    </div>
+  </header>
+
+  <main class="admin-container">
+    <div class="admin-header">
+      <div class="admin-title-area">
+        <h1>Admin Dashboard</h1>
+        <p class="admin-subtitle">Repository: <strong>Samurai412/fmhy</strong></p>
+      </div>
+      <div>
+        <button class="nav-btn" style="background: var(--accent); color: #fff;" onclick="fetchRepoData()">Refresh Data</button>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('postsTab')">Posts</button>
+      <button class="tab-btn" onclick="switchTab('navbarTab')">Navigation Tabs</button>
+      <button class="tab-btn" onclick="switchTab('guestbookTab')">Guestbook</button>
+    </div>
+
+    <!-- Tab 1: Posts Manager -->
+    <div id="postsTab" class="tab-pane active">
+      <div class="card-panel">
+        <div class="panel-title">
+          <span>Published Posts</span>
+          <span id="postCountBadge" class="nav-btn" style="font-size: 0.8rem;">0 posts</span>
+        </div>
+        <div id="postsTableContainer">
+          <p style="color: var(--text-muted);">Loading posts...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Navbar Pages (Tag Filter Builder) -->
+    <div id="navbarTab" class="tab-pane">
+      <div class="card-panel">
+        <div class="panel-title">
+          <span>Custom Navigation Tabs</span>
+          <button class="btn-action" onclick="addNavbarRow()">+ Add Tab</button>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+          Create custom category tabs for your site header. Each page filters posts matching specific tags (e.g. <strong>IT</strong> tab matching tags <code>Python</code> or <code>JS</code>).
+        </p>
+        <div id="navbarListContainer"></div>
+        <div style="margin-top: 20px;">
+          <button class="nav-btn" style="background: var(--accent); color: #fff; width: 100%; padding: 12px;" onclick="saveNavbarConfig()">Save Navigation (navbar.json)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Guestbook Management -->
+    <div id="guestbookTab" class="tab-pane">
+      <div class="card-panel">
+        <div class="panel-title">Guestbook Configuration & Feed</div>
+        <div class="form-group">
+          <label class="form-label">
+            <input type="checkbox" id="gbEnabledCheck" style="margin-right: 8px;" /> Enable Guestbook on Site Index
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Guestbook Title</label>
+          <input type="text" id="gbTitleInput" class="form-input" value="Discussion & Feedback" />
+        </div>
+        <button class="nav-btn" style="background: var(--accent); color: #fff; margin-bottom: 24px;" onclick="saveGuestbookConfig()">Save Guestbook Settings</button>
+        
+        <div class="panel-title" style="margin-top: 20px;">Moderation Feed</div>
+        <div id="guestbookFeedContainer">
+          <p style="color: var(--text-muted);">No entries yet.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Edit Post Modal -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">Edit Post</h2>
+        <button class="btn-action" onclick="closeEditModal()">✕</button>
+      </div>
+      <input type="hidden" id="editFileSha" />
+      <input type="hidden" id="editFileName" />
+      <div class="form-group">
+        <label class="form-label">Post Title</label>
+        <input type="text" id="editTitleInput" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tags (comma separated, e.g. Python, JS, Web)</label>
+        <input type="text" id="editTagsInput" class="form-input" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Markdown / Note Content</label>
+        <textarea id="editContentInput" class="form-textarea" style="min-height: 250px; font-family: 'Fira Code', monospace;"></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-action" onclick="closeEditModal()">Cancel</button>
+        <button class="nav-btn" style="background: var(--accent); color: #fff;" onclick="savePostEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Token Authentication Modal -->
+  <div id="tokenModal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 class="modal-title">GitHub Authentication</h2>
+        <button class="btn-action" onclick="closeTokenModal()">✕</button>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+        Enter your GitHub Personal Access Token (PAT) with <code>repo</code> permissions to manage posts and site settings.
+      </p>
+      <div class="form-group">
+        <label class="form-label">GitHub Token (PAT)</label>
+        <input type="password" id="patInput" class="form-input" placeholder="ghp_xxxxxxxxxxxx" />
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="nav-btn" style="background: var(--accent); color: #fff; width: 100%;" onclick="saveToken()">Save Authentication</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GITHUB_USER = 'Samurai412';
+    const REPO_NAME = 'fmhy';
+    const SITE_INDEX_NAME = 'Blog';
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      
+      const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (btn) btn.classList.add('active');
+      const pane = document.getElementById(tabId);
+      if (pane) pane.classList.add('active');
+    }
+
+    function getToken() {
+      return localStorage.getItem('atlas_admin_token_' + GITHUB_USER) || '';
+    }
+
+    function saveToken() {
+      const tok = document.getElementById('patInput').value.trim();
+      if (!tok) return alert('Please enter a valid GitHub token.');
+      localStorage.setItem('atlas_admin_token_' + GITHUB_USER, tok);
+      closeTokenModal();
+      fetchRepoData();
+    }
+
+    function openTokenModal() {
+      document.getElementById('patInput').value = getToken();
+      document.getElementById('tokenModal').classList.add('open');
+    }
+
+    function closeTokenModal() {
+      document.getElementById('tokenModal').classList.remove('open');
+    }
+
+    let postsList = [];
+    let navbarConfig = [];
+    let guestbookConfig = { enabled: false, title: 'Discussion & Feedback' };
+
+    async function fetchRepoData() {
+      const token = getToken();
+      if (!token) {
+        openTokenModal();
+        return;
+      }
+
+      try {
+        const repoRes = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/', {
+          headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+        });
+        if (!repoRes.ok) throw new Error('Could not access repository. Verify token permissions.');
+        const files = await repoRes.json();
+        
+        postsList = files.filter(f => f.name.endsWith('.html') && f.name !== 'index.html' && f.name !== 'admin.html');
+        renderPostsTable();
+
+        try {
+          const navRes = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/navbar.json', {
+            headers: { 'Authorization': 'token ' + token }
+          });
+          if (navRes.ok) {
+            const navData = await navRes.json();
+            navbarConfig = JSON.parse(decodeURIComponent(escape(atob(navData.content))));
+            renderNavbarList();
+          } else {
+            renderNavbarList();
+          }
+        } catch(e) { renderNavbarList(); }
+
+        try {
+          const gbRes = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/guestbook.json', {
+            headers: { 'Authorization': 'token ' + token }
+          });
+          if (gbRes.ok) {
+            const gbData = await gbRes.json();
+            const parsedGb = JSON.parse(decodeURIComponent(escape(atob(gbData.content))));
+            guestbookConfig = parsedGb.config || { enabled: false, title: 'Discussion & Feedback' };
+            renderGuestbookTab(parsedGb.entries || []);
+          } else {
+            renderGuestbookTab([]);
+          }
+        } catch(e) { renderGuestbookTab([]); }
+
+      } catch(err) {
+        alert('Repository load failed: ' + err.message);
+      }
+    }
+
+    function renderPostsTable() {
+      const badge = document.getElementById('postCountBadge');
+      if (badge) badge.textContent = postsList.length + (postsList.length === 1 ? ' post' : ' posts');
+
+      if (!postsList.length) {
+        document.getElementById('postsTableContainer').innerHTML = '<p style="color: var(--text-muted);">No published posts found in repository.</p>';
+        return;
+      }
+
+      let html = '<table class="posts-table"><thead><tr><th>Post Filename</th><th>Actions</th></tr></thead><tbody>';
+      postsList.forEach(p => {
+        html += '<tr>' +
+          '<td><strong>' + p.path + '</strong></td>' +
+          '<td>' +
+            '<button class="btn-action" data-path="' + p.path + '" data-sha="' + p.sha + '" onclick="openEditModal(this.dataset.path, this.dataset.sha)">Edit</button>' +
+            '<button class="btn-action btn-danger" data-path="' + p.path + '" data-sha="' + p.sha + '" onclick="confirmDeletePost(this.dataset.path, this.dataset.sha)">Delete</button>' +
+            '<a href="./' + p.path + '" target="_blank" class="btn-action" style="text-decoration: none;">View</a>' +
+          '</td>' +
+        '</tr>';
+      });
+      html += '</tbody></table>';
+      document.getElementById('postsTableContainer').innerHTML = html;
+    }
+
+    function buildOpenGraphPngBase64(title, tags, siteName, theme, excerpt) {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1200;
+        canvas.height = 630;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+
+        const isDark = theme === 'dark';
+        const bg = isDark ? '#09090b' : '#ffffff';
+        const border = isDark ? '#27272a' : '#e4e4e7';
+        const textTitle = isDark ? '#f4f4f5' : '#09090b';
+        const textBody = isDark ? '#a1a1aa' : '#52525b';
+        const textMuted = isDark ? '#71717a' : '#71717a';
+        const dotColor = isDark ? '#22c55e' : '#09090b';
+
+        const cleanTitle = String(title || 'Shared Notes').trim();
+        const cleanSite = String(siteName || 'Collection').trim();
+        const cleanExcerpt = String(excerpt || '').replace(/[#*_~()\[\]><]/g, ' ').replace(new RegExp('\x60', 'g'), ' ').replace(/\s+/g, ' ').trim();
+
+        // 1. Crisp White Background
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, 1200, 630);
+
+        // 2. Subtle Inset Border Frame
+        ctx.strokeStyle = border;
+        ctx.lineWidth = 1.5;
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(36, 36, 1128, 558, 16);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(36, 36, 1128, 558);
+        }
+
+        // 3. Header Branding
+        ctx.fillStyle = dotColor;
+        ctx.beginPath();
+        ctx.arc(96, 110, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = textTitle;
+        ctx.textAlign = 'left';
+        ctx.fillText('ATLAS', 112, 115);
+
+        ctx.font = '400 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = textMuted;
+        ctx.fillText('/', 180, 115);
+
+        ctx.font = '500 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillStyle = textBody;
+        ctx.fillText(cleanSite, 196, 115);
+
+        // 4. Hero Title (60px Bold Editorial)
+        ctx.fillStyle = textTitle;
+        ctx.font = 'bold 60px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+        const words = cleanTitle.split(' ');
+        const titleLines = [];
+        let cur = '';
+        words.forEach(w => {
+          if ((cur + ' ' + w).trim().length <= 26) {
+            cur = (cur + ' ' + w).trim();
+          } else {
+            if (cur) titleLines.push(cur);
+            cur = w;
+          }
+        });
+        if (cur) titleLines.push(cur);
+        const displayTitleLines = titleLines.slice(0, 3);
+        if (titleLines.length > 3) displayTitleLines[2] += '...';
+
+        displayTitleLines.forEach((l, idx) => {
+          ctx.fillText(l, 90, 210 + idx * 72);
+        });
+
+        // 5. Excerpt / Subtitle (24px Regular)
+        if (cleanExcerpt && cleanExcerpt.toLowerCase() !== cleanTitle.toLowerCase()) {
+          ctx.fillStyle = textBody;
+          ctx.font = '400 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+          const exWords = cleanExcerpt.split(' ');
+          const exLines = [];
+          let exCur = '';
+          exWords.forEach(w => {
+            if ((exCur + ' ' + w).trim().length <= 62) {
+              exCur = (exCur + ' ' + w).trim();
+            } else {
+              if (exCur) exLines.push(exCur);
+              exCur = w;
+            }
+          });
+          if (exCur) exLines.push(exCur);
+          const displayExLines = exLines.slice(0, 2);
+          if (exLines.length > 2) displayExLines[1] += '...';
+
+          const startY = 180 + displayTitleLines.length * 72 + 20;
+          displayExLines.forEach((l, idx) => {
+            ctx.fillText(l, 90, startY + idx * 36);
+          });
+        }
+
+        // 6. Footer Tags (90, 540)
+        const tagList = (Array.isArray(tags) && tags.length > 0) ? tags : ['Notes'];
+        const tagsFormatted = tagList.slice(0, 4).map(t => String(t).trim()).join('   •   ');
+
+        ctx.fillStyle = textMuted;
+        ctx.font = '600 15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(tagsFormatted, 90, 540);
+
+        // 7. Domain (bottom right)
+        ctx.textAlign = 'right';
+        ctx.fillText('github.io', 1110, 540);
+
+        const dataUrl = canvas.toDataURL('image/png');
+        return dataUrl.split(',')[1] || dataUrl;
+      } catch(e) {
+        console.warn('buildOpenGraphPngBase64 error:', e);
+        return null;
+      }
+    }
+
+    function buildOpenGraphSvg(title, tags, siteName, theme, excerpt) {
+      const isDark = theme === 'dark';
+      const bg = isDark ? '#09090b' : '#ffffff';
+      const border = isDark ? '#27272a' : '#e4e4e7';
+      const textTitle = isDark ? '#f4f4f5' : '#09090b';
+      const textBody = isDark ? '#a1a1aa' : '#52525b';
+      const textMuted = isDark ? '#71717a' : '#71717a';
+      const dotColor = isDark ? '#22c55e' : '#09090b';
+
+      const cleanTitle = escapeHtml(title || 'Shared Notes');
+      const cleanSite = escapeHtml(siteName || 'Collection');
+      const cleanExcerpt = escapeHtml(String(excerpt || '').replace(/[#*_~()\[\]><]/g, ' ').replace(new RegExp('\x60', 'g'), ' ').replace(/\s+/g, ' ').trim());
+
+      const words = cleanTitle.split(' ');
+      const titleLines = [];
+      let cur = '';
+      words.forEach(w => {
+        if ((cur + ' ' + w).trim().length <= 26) {
+          cur = (cur + ' ' + w).trim();
+        } else {
+          if (cur) titleLines.push(cur);
+          cur = w;
+        }
+      });
+      if (cur) titleLines.push(cur);
+      const displayTitleLines = titleLines.slice(0, 3);
+      if (titleLines.length > 3) displayTitleLines[2] += '...';
+
+      let excerptTspans = '';
+      if (cleanExcerpt && cleanExcerpt.toLowerCase() !== cleanTitle.toLowerCase()) {
+        const exWords = cleanExcerpt.split(' ');
+        const exLines = [];
+        let exCur = '';
+        exWords.forEach(w => {
+          if ((exCur + ' ' + w).trim().length <= 62) {
+            exCur = (exCur + ' ' + w).trim();
+          } else {
+            if (exCur) exLines.push(exCur);
+            exCur = w;
+          }
+        });
+        if (exCur) exLines.push(exCur);
+        const displayExLines = exLines.slice(0, 2);
+        if (exLines.length > 2) displayExLines[1] += '...';
+        
+        const startY = 180 + displayTitleLines.length * 72 + 20;
+        excerptTspans = displayExLines.map((l, i) => {
+          return '<text x="90" y="' + (startY + i * 36) + '" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="400" fill="' + textBody + '" letter-spacing="-0.01em">' + l + '</text>';
+        }).join('\n');
+      }
+
+      const tagList = (Array.isArray(tags) && tags.length > 0) ? tags : ['Notes'];
+      const tagsFormatted = tagList.slice(0, 4).map(t => String(t).trim()).join('   •   ');
+
+      const titleTspans = displayTitleLines.map((l, i) => {
+        const yOffset = 210 + i * 72;
+        return '<text x="90" y="' + yOffset + '" font-family="system-ui, -apple-system, sans-serif" font-size="60" font-weight="800" fill="' + textTitle + '" letter-spacing="-0.035em">' + l + '</text>';
+      }).join('\n');
+
+      return [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">',
+        '  <rect width="1200" height="630" fill="' + bg + '" />',
+        '  <rect x="36" y="36" width="1128" height="558" rx="16" fill="' + bg + '" stroke="' + border + '" stroke-width="1.5" />',
+        '  <g transform="translate(90, 105)">',
+        '    <circle cx="6" cy="6" r="5" fill="' + dotColor + '" />',
+        '    <text x="24" y="11" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="' + textTitle + '" letter-spacing="0.1em">ATLAS</text>',
+        '    <text x="92" y="11" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="400" fill="' + textMuted + '">/</text>',
+        '    <text x="108" y="11" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="500" fill="' + textBody + '">' + cleanSite + '</text>',
+        '  </g>',
+        titleTspans,
+        excerptTspans,
+        '  <g transform="translate(90, 540)">',
+        '    <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="600" fill="' + textMuted + '" letter-spacing="0.02em">' + tagsFormatted + '</text>',
+        '  </g>',
+        '  <text x="1110" y="540" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="600" fill="' + textMuted + '" text-anchor="end">github.io</text>',
+        '</svg>'
+      ].join('\n');
+    }
+
+    function buildFullNoteHtml(title, tags, markdown, siteIndexName, filename) {
+      const tagsStr = tags.join(', ');
+      const slug = filename ? filename.replace(/\.html$/i, '') : (title.toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50) || 'lesson');
+      const pageUrl = 'https://' + GITHUB_USER + '.github.io/' + REPO_NAME + '/' + escapeHtml(slug) + '.html';
+      const pngUrl = 'https://' + GITHUB_USER + '.github.io/' + REPO_NAME + '/og-images/' + escapeHtml(slug) + '.png';
+      
+      return [
+        '<!DOCTYPE html>',
+        '<html lang="en">',
+        '<head>',
+        '  <meta charset="UTF-8">',
+        '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+        '  <meta name="tags" content="' + escapeHtml(tagsStr) + '">',
+        '  <' + 'script>window.LESSON_TAGS = ' + JSON.stringify(tags) + ';<' + '/script>',
+        '  <!-- OpenGraph / Social Preview Cards (Absolute PNG for Discord, Twitter, WhatsApp) -->',
+        '  <meta property="og:type" content="article">',
+        '  <meta property="og:site_name" content="' + escapeHtml(siteIndexName) + '">',
+        '  <meta property="og:title" content="' + escapeHtml(title) + ' — ' + escapeHtml(siteIndexName) + '">',
+        '  <meta property="og:url" content="' + pageUrl + '">',
+        '  <meta property="og:image" content="' + pngUrl + '">',
+        '  <meta property="og:image:secure_url" content="' + pngUrl + '">',
+        '  <meta property="og:image:type" content="image/png">',
+        '  <meta property="og:image:width" content="1200">',
+        '  <meta property="og:image:height" content="630">',
+        '  <meta property="og:image:alt" content="' + escapeHtml(title) + '">',
+        '  <meta name="twitter:card" content="summary_large_image">',
+        '  <meta name="twitter:title" content="' + escapeHtml(title) + ' — ' + escapeHtml(siteIndexName) + '">',
+        '  <meta name="twitter:image" content="' + pngUrl + '">',
+        '  <title>' + escapeHtml(title) + ' — ' + escapeHtml(siteIndexName) + '</title>',
+        '  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">',
+        '  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">',
+        '  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">',
+        '  <' + 'script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><' + '/script>',
+        '  <' + 'script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="initMath()"><' + '/script>',
+        '  <' + 'script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><' + '/script>',
+        '  <style>',
+        '    * { box-sizing: border-box; margin: 0; padding: 0; }',
+        '    :root {',
+        '      --bg-primary: #070a12; --bg-pill: rgba(18, 24, 38, 0.45); --bg-card: rgba(22, 28, 40, 0.55);',
+        '      --bg-card-hover: rgba(30, 39, 58, 0.8); --bg-elevated: rgba(30, 39, 58, 0.6); --text-primary: #f8fafc;',
+        '      --text-secondary: #94a3b8; --text-muted: #64748b; --border: rgba(255, 255, 255, 0.15);',
+        '      --border-hover: rgba(59, 130, 246, 0.6); --accent: #10b981; --accent-light: #34d399;',
+        '      --accent-glow: rgba(16, 185, 129, 0.2); --accent-border: rgba(16, 185, 129, 0.4);',
+        '      --orb-1: rgba(99, 102, 241, 0.35); --orb-2: rgba(16, 185, 129, 0.3); --shadow: 0 10px 30px rgba(0,0,0,0.4);',
+        '      --radius-sm: 8px; --radius-md: 20px; --radius-lg: 32px;',
+        '    }',
+        '    :root.theme-light { --bg-primary: #f8fafc; --bg-pill: rgba(255, 255, 255, 0.7); --bg-card: rgba(255, 255, 255, 0.85); --bg-card-hover: #ffffff; --bg-elevated: rgba(241, 245, 249, 0.9); --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8; --border: rgba(0, 0, 0, 0.1); --border-hover: rgba(59, 130, 246, 0.5); --accent: #059669; --accent-light: #10b981; --accent-glow: rgba(5, 150, 105, 0.15); --accent-border: rgba(5, 150, 105, 0.3); --orb-1: rgba(99, 102, 241, 0.15); --orb-2: rgba(16, 185, 129, 0.12); --shadow: 0 10px 30px rgba(0,0,0,0.06); }',
+        '    :root.theme-nonov { --bg-primary: #0d0714; --bg-pill: rgba(26, 14, 40, 0.45); --bg-card: rgba(30, 18, 48, 0.55); --bg-card-hover: rgba(45, 27, 72, 0.8); --bg-elevated: rgba(40, 22, 64, 0.6); --text-primary: #fdf4ff; --text-secondary: #d8b4fe; --text-muted: #a855f7; --border: rgba(216, 180, 254, 0.15); --border-hover: rgba(192, 132, 252, 0.6); --accent: #8b5cf6; --accent-light: #a78bfa; --accent-glow: rgba(139, 92, 246, 0.25); --accent-border: rgba(139, 92, 246, 0.4); --orb-1: rgba(168, 85, 247, 0.35); --orb-2: rgba(236, 72, 153, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-lea { --bg-primary: #061517; --bg-pill: rgba(10, 35, 38, 0.45); --bg-card: rgba(14, 42, 46, 0.55); --bg-card-hover: rgba(20, 60, 66, 0.8); --bg-elevated: rgba(16, 50, 55, 0.6); --text-primary: #f0fdfa; --text-secondary: #5eead4; --text-muted: #14b8a6; --border: rgba(94, 234, 212, 0.15); --border-hover: rgba(45, 212, 191, 0.6); --accent: #30D5C8; --accent-light: #5eead4; --accent-glow: rgba(48, 213, 200, 0.25); --accent-border: rgba(48, 213, 200, 0.4); --orb-1: rgba(48, 213, 200, 0.35); --orb-2: rgba(20, 184, 166, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-sakura { --bg-primary: #180a11; --bg-pill: rgba(40, 15, 28, 0.45); --bg-card: rgba(48, 18, 34, 0.55); --bg-card-hover: rgba(70, 26, 50, 0.8); --bg-elevated: rgba(58, 22, 42, 0.6); --text-primary: #fdf2f8; --text-secondary: #f472b6; --text-muted: #db2777; --border: rgba(244, 114, 182, 0.15); --border-hover: rgba(236, 72, 153, 0.6); --accent: #ec4899; --accent-light: #f472b6; --accent-glow: rgba(236, 72, 153, 0.25); --accent-border: rgba(236, 72, 153, 0.4); --orb-1: rgba(236, 72, 153, 0.35); --orb-2: rgba(244, 63, 94, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-lain { --bg-primary: #030a04; --bg-pill: rgba(6, 26, 10, 0.45); --bg-card: rgba(8, 32, 12, 0.55); --bg-card-hover: rgba(12, 46, 18, 0.8); --bg-elevated: rgba(10, 38, 15, 0.6); --text-primary: #f0fdf4; --text-secondary: #4ade80; --text-muted: #16a34a; --border: rgba(74, 222, 128, 0.15); --border-hover: rgba(34, 197, 94, 0.6); --accent: #00ff41; --accent-light: #4ade80; --accent-glow: rgba(0, 255, 65, 0.25); --accent-border: rgba(0, 255, 65, 0.4); --orb-1: rgba(0, 255, 65, 0.35); --orb-2: rgba(34, 197, 94, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-atlas-dark { --bg-primary: #030d07; --bg-pill: rgba(6, 30, 15, 0.45); --bg-card: rgba(8, 38, 20, 0.55); --bg-card-hover: rgba(12, 54, 28, 0.8); --bg-elevated: rgba(10, 44, 24, 0.6); --text-primary: #f0fdf4; --text-secondary: #86efac; --text-muted: #22c55e; --border: rgba(134, 239, 172, 0.15); --border-hover: rgba(34, 197, 94, 0.6); --accent: #22c55e; --accent-light: #4ade80; --accent-glow: rgba(34, 197, 94, 0.25); --accent-border: rgba(34, 197, 94, 0.4); --orb-1: rgba(34, 197, 94, 0.35); --orb-2: rgba(16, 185, 129, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-classic-light { --bg-primary: #fbfbf9; --bg-pill: rgba(255, 255, 255, 0.7); --bg-card: rgba(255, 255, 255, 0.9); --bg-card-hover: #ffffff; --bg-elevated: rgba(245, 245, 240, 0.9); --text-primary: #18181b; --text-secondary: #52525b; --text-muted: #a1a1aa; --border: rgba(0, 0, 0, 0.08); --border-hover: rgba(37, 99, 235, 0.5); --accent: #2563eb; --accent-light: #3b82f6; --accent-glow: rgba(37, 99, 235, 0.15); --accent-border: rgba(37, 99, 235, 0.3); --orb-1: rgba(37, 99, 235, 0.12); --orb-2: rgba(59, 130, 246, 0.1); --shadow: 0 10px 30px rgba(0,0,0,0.05); }',
+        '    :root.theme-athenaeum { --bg-primary: #120e0a; --bg-pill: rgba(35, 25, 18, 0.45); --bg-card: rgba(42, 30, 22, 0.55); --bg-card-hover: rgba(60, 42, 30, 0.8); --bg-elevated: rgba(50, 36, 26, 0.6); --text-primary: #fef3c7; --text-secondary: #fde68a; --text-muted: #d97706; --border: rgba(253, 230, 138, 0.15); --border-hover: rgba(245, 158, 11, 0.6); --accent: #f59e0b; --accent-light: #fbbf24; --accent-glow: rgba(245, 158, 11, 0.25); --accent-border: rgba(245, 158, 11, 0.4); --orb-1: rgba(245, 158, 11, 0.35); --orb-2: rgba(217, 119, 6, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-solo-leveling { --bg-primary: #040914; --bg-pill: rgba(8, 20, 45, 0.45); --bg-card: rgba(10, 25, 55, 0.55); --bg-card-hover: rgba(15, 38, 80, 0.8); --bg-elevated: rgba(12, 30, 68, 0.6); --text-primary: #eff6ff; --text-secondary: #93c5fd; --text-muted: #3b82f6; --border: rgba(147, 197, 253, 0.15); --border-hover: rgba(59, 130, 246, 0.6); --accent: #3b82f6; --accent-light: #60a5fa; --accent-glow: rgba(59, 130, 246, 0.25); --accent-border: rgba(59, 130, 246, 0.4); --orb-1: rgba(59, 130, 246, 0.35); --orb-2: rgba(37, 99, 235, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-christmas { --bg-primary: #07150d; --bg-pill: rgba(15, 40, 25, 0.45); --bg-card: rgba(18, 48, 30, 0.55); --bg-card-hover: rgba(25, 68, 42, 0.8); --bg-elevated: rgba(20, 56, 35, 0.6); --text-primary: #f0fdf4; --text-secondary: #86efac; --text-muted: #ef4444; --border: rgba(134, 239, 172, 0.15); --border-hover: rgba(239, 68, 68, 0.6); --accent: #ef4444; --accent-light: #f87171; --accent-glow: rgba(239, 68, 68, 0.25); --accent-border: rgba(239, 68, 68, 0.4); --orb-1: rgba(239, 68, 68, 0.35); --orb-2: rgba(34, 197, 94, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    :root.theme-taz { --bg-primary: #140409; --bg-pill: rgba(38, 8, 18, 0.45); --bg-card: rgba(46, 10, 22, 0.55); --bg-card-hover: rgba(66, 14, 32, 0.8); --bg-elevated: rgba(54, 12, 26, 0.6); --text-primary: #fff1f2; --text-secondary: #fda4af; --text-muted: #f43f5e; --border: rgba(253, 164, 175, 0.15); --border-hover: rgba(244, 63, 94, 0.6); --accent: #f43f5e; --accent-light: #fb7185; --accent-glow: rgba(244, 63, 94, 0.25); --accent-border: rgba(244, 63, 94, 0.4); --orb-1: rgba(244, 63, 94, 0.35); --orb-2: rgba(225, 29, 72, 0.25); --shadow: 0 10px 30px rgba(0,0,0,0.5); }',
+        '    body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.7; min-height: 100vh; position: relative; overflow-x: hidden; }',
+        '    .nav-header { position: sticky; top: 16px; z-index: 100; max-width: 1000px; margin: 16px auto 48px auto; padding: 12px 24px; background: var(--bg-pill); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid var(--border); border-radius: 9999px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: var(--shadow); }',
+        '    .nav-left { display: flex; align-items: center; gap: 14px; }',
+        '    .back-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 9999px; color: var(--text-primary); text-decoration: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }',
+        '    .back-btn:hover { background: rgba(255,255,255,0.12); border-color: var(--accent); color: var(--accent); }',
+        '    .nav-divider { width: 1px; height: 20px; background: var(--border); }',
+        '    .site-title { font-weight: 700; font-size: 1.05rem; color: var(--text-primary); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }',
+        '    .nav-right { display: flex; align-items: center; gap: 10px; }',
+        '    .theme-selector { position: relative; }',
+        '    .theme-btn { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-secondary); padding: 8px 14px; border-radius: 9999px; cursor: pointer; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; }',
+        '    .theme-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-primary); border-color: var(--border-hover); }',
+        '    .theme-menu { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; padding: 6px; min-width: 170px; z-index: 200; box-shadow: var(--shadow); }',
+        '    .theme-menu.open { display: block; }',
+        '    .theme-option { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; background: none; border: none; color: var(--text-secondary); border-radius: 10px; cursor: pointer; font-size: 0.85rem; text-align: left; transition: all 0.2s ease; }',
+        '    .theme-option:hover { background: var(--bg-card-hover); color: var(--text-primary); }',
+        '    .theme-option.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }',
+        '    .theme-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }',
+        '    .theme-dot.dark { background: #070a12; border: 2px solid #10b981; }',
+        '    .theme-dot.light { background: #ffffff; border: 2px solid #059669; }',
+        '    .theme-dot.nonov { background: #0d0714; border: 2px solid #8b5cf6; }',
+        '    .theme-dot.lea { background: #061517; border: 2px solid #30D5C8; }',
+        '    .theme-dot.sakura { background: #180a11; border: 2px solid #ec4899; }',
+        '    .theme-dot.lain { background: #030a04; border: 2px solid #00ff41; }',
+        '    .theme-dot.atlas-dark { background: #030d07; border: 2px solid #22c55e; }',
+        '    .theme-dot.classic-light { background: #fbfbf9; border: 2px solid #2563eb; }',
+        '    .theme-dot.athenaeum { background: #120e0a; border: 2px solid #f59e0b; }',
+        '    .theme-dot.solo-leveling { background: #040914; border: 2px solid #3b82f6; }',
+        '    .theme-dot.christmas { background: #07150d; border: 2px solid #ef4444; }',
+        '    .theme-dot.taz { background: #140409; border: 2px solid #f43f5e; }',
+        '    .article-container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px 24px; position: relative; z-index: 1; }',
+        '    .article-header { margin-bottom: 32px; background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 40px 32px; box-shadow: var(--shadow); }',
+        '    .article-title { font-size: 2.4rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; letter-spacing: -0.02em; color: var(--text-primary); }',
+        '    .article-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }',
+        '    .pill-tag { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent-border); padding: 4px 12px; border-radius: 9999px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.03em; }',
+        '    .note-section { background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 36px 32px; margin-bottom: 24px; box-shadow: var(--shadow); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }',
+        '    .note-section:hover { border-color: var(--border-hover); }',
+        '    .note-content { color: var(--text-primary); font-size: 1.05rem; line-height: 1.8; }',
+        '    .note-content p { margin-bottom: 1.2em; }',
+        '    .note-content h1, .note-content h2, .note-content h3 { color: var(--text-primary); font-weight: 700; margin: 1.5em 0 0.6em 0; letter-spacing: -0.01em; }',
+        '    .note-content code { font-family: "Fira Code", monospace; background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 6px; font-size: 0.88em; }',
+        '    .note-content pre { background: rgba(0,0,0,0.35); padding: 18px; border-radius: 12px; overflow-x: auto; margin: 1.2em 0; border: 1px solid var(--border); }',
+        '    .note-content pre code { background: none; padding: 0; }',
+        '    .embed-card { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 18px; overflow: hidden; margin: 1.75rem 0; box-shadow: var(--shadow); }',
+        '    .embed-aspect-ratio { position: relative; width: 100%; padding-top: 56.25%; }',
+        '    .embed-aspect-ratio iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }',
+        '    .embed-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: rgba(0, 0, 0, 0.3); border-bottom: 1px solid var(--border); font-size: 0.82rem; color: var(--text-secondary); }',
+        '    .embed-header a { color: var(--accent); text-decoration: none; font-size: 0.8rem; }',
+        '    .audio-embed { padding: 16px 20px; }',
+        '    .audio-embed audio { width: 100%; height: 42px; margin-top: 10px; border-radius: 9999px; outline: none; }',
+        '    .callout-box { border-radius: 14px; padding: 16px 20px; margin: 1.75rem 0; border-left: 5px solid var(--accent); background: var(--bg-card); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }',
+        '    .callout-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }',
+        '    .callout-note { border-left-color: #3b82f6; background: rgba(59, 130, 246, 0.08); } .callout-note .callout-title { color: #60a5fa; }',
+        '    .callout-tip { border-left-color: #10b981; background: rgba(16, 185, 129, 0.08); } .callout-tip .callout-title { color: #34d399; }',
+        '    .callout-warning { border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.08); } .callout-warning .callout-title { color: #fbbf24; }',
+        '    .callout-caution { border-left-color: #ef4444; background: rgba(239, 68, 68, 0.08); } .callout-caution .callout-title { color: #f87171; }',
+        '    .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; }',
+        '    .footer a { color: var(--accent); text-decoration: none; }',
+        '    @media (max-width: 768px) { .nav-header { margin: 12px 12px 24px 12px; padding: 10px 16px; border-radius: 9999px; } .article-container { padding: 0 16px 48px 16px; } .article-header { padding: 24px 18px; margin-bottom: 20px; } .article-title { font-size: 1.8rem; } .note-section { padding: 24px 18px; } }',
+        '  </style>',
+        '</head>',
+        '<body>',
+        '  <header class="nav-header">',
+        '    <div class="nav-left">',
+        '      <a href="index.html" class="back-btn" onclick="if(window.history.length>1 && document.referrer.includes(location.host)){event.preventDefault();window.history.back();}">',
+        '        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>',
+        '        Back',
+        '      </a>',
+        '      <div class="nav-divider"></div>',
+        '      <a href="index.html" class="site-title">' + escapeHtml(siteIndexName) + '</a>',
+        '    </div>',
+        '    <div class="nav-right">',
+        '      <div class="theme-selector">',
+        '        <button class="theme-btn" onclick="toggleThemeMenu()"><span id="themeName">Dark</span></button>',
+        '        <div class="theme-menu" id="themeMenu">',
+        '          <button class="theme-option active" data-theme="dark" onclick="setTheme(this.dataset.theme)"><span class="theme-dot dark"></span> Dark</button>',
+        '          <button class="theme-option" data-theme="light" onclick="setTheme(this.dataset.theme)"><span class="theme-dot light"></span> Light</button>',
+        '          <button class="theme-option" data-theme="nonov" onclick="setTheme(this.dataset.theme)"><span class="theme-dot nonov"></span> Nonov</button>',
+        '          <button class="theme-option" data-theme="lea" onclick="setTheme(this.dataset.theme)"><span class="theme-dot lea"></span> Lea</button>',
+        '          <button class="theme-option" data-theme="sakura" onclick="setTheme(this.dataset.theme)"><span class="theme-dot sakura"></span> Sakura</button>',
+        '          <button class="theme-option" data-theme="lain" onclick="setTheme(this.dataset.theme)"><span class="theme-dot lain"></span> Lain</button>',
+        '          <button class="theme-option" data-theme="atlas-dark" onclick="setTheme(this.dataset.theme)"><span class="theme-dot atlas-dark"></span> ATLAS Dark</button>',
+        '          <button class="theme-option" data-theme="classic-light" onclick="setTheme(this.dataset.theme)"><span class="theme-dot classic-light"></span> Classic Light</button>',
+        '          <button class="theme-option" data-theme="athenaeum" onclick="setTheme(this.dataset.theme)"><span class="theme-dot athenaeum"></span> Athenaeum</button>',
+        '          <button class="theme-option" data-theme="solo-leveling" onclick="setTheme(this.dataset.theme)"><span class="theme-dot solo-leveling"></span> Solo Leveling</button>',
+        '          <button class="theme-option" data-theme="christmas" onclick="setTheme(this.dataset.theme)"><span class="theme-dot christmas"></span> Christmas</button>',
+        '          <button class="theme-option" data-theme="taz" onclick="setTheme(this.dataset.theme)"><span class="theme-dot taz"></span> Taz</button>',
+        '        </div>',
+        '      </div>',
+        '    </div>',
+        '  </header>',
+        '  <main class="article-container">',
+        '    <header class="article-header">',
+        '      <h1 class="article-title">' + escapeHtml(title) + '</h1>',
+        '      <div class="article-meta"><span class="pill-tag">' + escapeHtml(siteIndexName) + '</span> ' + tagsPills + '</div>',
+        '    </header>',
+        '    <article class="article-body">',
+        '      <section class="note-section" id="notes-content">',
+        '        <div class="note-content markdown-content">' + markdown + '</div>',
+        '      </section>',
+        '    </article>',
+        '    <footer class="footer"><p>Published with <a href="https://github.com/atlas-face" target="_blank">ATLAS:Face</a></p></footer>',
+        '  </main>',
+        '  <' + 'script>',
+        '    function renderRichEmbeds(container) {',
+        '      if (!container) return;',
+        '      container.querySelectorAll("a").forEach(a => {',
+        '        const url = a.href || a.textContent.trim();',
+        '        const p = a.parentElement;',
+        '        const isStandalone = p && p.tagName === "P" && p.childNodes.length === 1;',
+        '        const yt = url.match(new RegExp("(?:https?:\\/\\/)?(?:www\\.)?(?:youtube\\.com\\/(?:watch\\?v=|embed\\/|shorts\\/)|youtu\\.be\\/)([a-zA-Z0-9_-]{11})", "i"));',
+        '        if (yt) {',
+        '          const html = "<div class=\"embed-card video-embed\"><div class=\"embed-header\"><span>▶ YouTube Video</span><a href=\"" + url + "\" target=\"_blank\">Open ↗</a></div><div class=\"embed-aspect-ratio\"><iframe src=\"https://www.youtube-nocookie.com/embed/" + yt[1] + "\" frameborder=\"0\" allowfullscreen></iframe></div></div>";',
+        '          const w = document.createElement("div"); w.innerHTML = html;',
+        '          if (isStandalone) p.replaceWith(w.firstElementChild); else a.replaceWith(w.firstElementChild);',
+        '        }',
+        '      });',
+        '    }',
+        '    function initMath() {',
+        '      if (typeof renderMathInElement !== "undefined") {',
+        '        try { renderMathInElement(document.body, { delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}, {left: "\\[", right: "\\]", display: true}, {left: "\\(", right: "\\)", display: false}], throwOnError: false }); } catch(e){}',
+        '      }',
+        '    }',
+        '    document.addEventListener("DOMContentLoaded", function() {',
+        '      if (typeof marked !== "undefined") {',
+        '        marked.setOptions({ breaks: true, gfm: true, headerIds: false, mangle: false });',
+        '        document.querySelectorAll(".note-content").forEach(el => {',
+        '          try { el.innerHTML = marked.parse(el.innerHTML); renderRichEmbeds(el); } catch(e){}',
+        '        });',
+        '      }',
+        '      setTimeout(initMath, 100);',
+        '    });',
+        '    const themes = { dark: { name: "Dark" }, light: { name: "Light" }, nonov: { name: "Nonov" }, lea: { name: "Lea" }, sakura: { name: "Sakura" }, lain: { name: "Lain" }, "atlas-dark": { name: "ATLAS Dark" }, "classic-light": { name: "Classic Light" }, athenaeum: { name: "Athenaeum" }, "solo-leveling": { name: "Solo Leveling" }, christmas: { name: "Christmas" }, taz: { name: "Taz" } };',
+        '    let currentTheme = localStorage.getItem("atlas-theme") || "dark";',
+        '    function setTheme(theme) {',
+        '      if (!themes[theme]) theme = "dark";',
+        '      currentTheme = theme;',
+        '      try { localStorage.setItem("atlas-theme", theme); } catch(e){}',
+        '      document.documentElement.className = "";',
+        '      if (theme !== "dark") document.documentElement.classList.add("theme-" + theme);',
+        '      const nameEl = document.getElementById("themeName");',
+        '      if (nameEl) nameEl.textContent = themes[theme].name;',
+        '      document.querySelectorAll(".theme-option").forEach(opt => opt.classList.toggle("active", opt.getAttribute("data-theme") === theme));',
+        '      const menu = document.getElementById("themeMenu");',
+        '      if (menu) menu.classList.remove("open");',
+        '    }',
+        '    function toggleThemeMenu() { const menu = document.getElementById("themeMenu"); if (menu) menu.classList.toggle("open"); }',
+        '    document.addEventListener("click", function(e) { if (!e.target.closest(".theme-selector")) { const menu = document.getElementById("themeMenu"); if (menu) menu.classList.remove("open"); } });',
+        '    setTheme(currentTheme);',
+        '  <' + '/script>',
+        '</body>',
+        '</html>'
+      ].join('\n');
+    }
+
+    let currentEditingOriginalHtml = '';
+
+    async function openEditModal(filename, sha) {
+      document.getElementById('editFileName').value = filename;
+      document.getElementById('editFileSha').value = sha;
+      document.getElementById('editTitleInput').value = filename.replace('.html', '').replace(/-/g, ' ');
+      document.getElementById('editTagsInput').value = 'Notes';
+      document.getElementById('editContentInput').value = 'Loading content...';
+      document.getElementById('editModal').classList.add('open');
+      currentEditingOriginalHtml = '';
+
+      try {
+        const res = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + filename, {
+          headers: { 'Authorization': 'token ' + getToken() }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const content = decodeURIComponent(escape(atob(data.content)));
+          currentEditingOriginalHtml = content;
+
+          // Extract title
+          const titleMatch = content.match(new RegExp('<h1 class="article-title">([^<]+)<\/h1>', 'i')) || content.match(new RegExp('<title>([^<]+)<\/title>', 'i'));
+          if (titleMatch && titleMatch[1]) {
+            const cleanT = titleMatch[1].split('—')[0].split('-')[0].trim();
+            if (cleanT) document.getElementById('editTitleInput').value = cleanT;
+          }
+
+          // Extract tags from <meta name="tags" content="...">
+          const tagMarker = 'name="tags" content="';
+          const tagIdx = content.indexOf(tagMarker);
+          if (tagIdx !== -1) {
+            const endQ = content.indexOf('"', tagIdx + tagMarker.length);
+            if (endQ !== -1) {
+              document.getElementById('editTagsInput').value = content.substring(tagIdx + tagMarker.length, endQ);
+            }
+          }
+
+          const startMarker = '<div class="note-content markdown-content">';
+          const startIdx = content.indexOf(startMarker);
+          const endIdx = content.indexOf('</div>', startIdx);
+          if (startIdx !== -1 && endIdx !== -1) {
+            document.getElementById('editContentInput').value = content.substring(startIdx + startMarker.length, endIdx);
+          } else {
+            const bodyStart = content.indexOf('<body>');
+            const bodyEnd = content.indexOf('</body>');
+            if (bodyStart !== -1 && bodyEnd !== -1) {
+              document.getElementById('editContentInput').value = content.substring(bodyStart + 6, bodyEnd).trim();
+            } else {
+              document.getElementById('editContentInput').value = content;
+            }
+          }
+        }
+      } catch(e){}
+    }
+
+    function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
+
+    async function savePostEdit() {
+      const filename = document.getElementById('editFileName').value;
+      const sha = document.getElementById('editFileSha').value;
+      const title = document.getElementById('editTitleInput').value.trim();
+      const tagsStr = document.getElementById('editTagsInput').value.trim();
+      const tags = tagsStr.split(',').map(t => t.trim()).filter(Boolean);
+      if (tags.length === 0) tags.push('Notes');
+      const markdown = document.getElementById('editContentInput').value;
+
+      const token = getToken();
+      if (!token) return openTokenModal();
+
+      let htmlContent = '';
+      if (currentEditingOriginalHtml && currentEditingOriginalHtml.includes('class="article-container"') && currentEditingOriginalHtml.includes('<style>')) {
+        let updated = currentEditingOriginalHtml;
+        // 1. Update Title
+        updated = updated.replace(new RegExp('<title>.*?<\/title>', 'i'), '<title>' + escapeHtml(title) + ' — ' + escapeHtml(SITE_INDEX_NAME) + '</title>');
+        // 2. Update Article H1 Title
+        updated = updated.replace(new RegExp('<h1 class="article-title">.*?<\/h1>', 'i'), '<h1 class="article-title">' + escapeHtml(title) + '</h1>');
+        // 3. Update Meta Tags
+        if (new RegExp('<meta\\s+name="tags"', 'i').test(updated)) {
+          updated = updated.replace(new RegExp('<meta\\s+name="tags"\\s+content="[^"]*">', 'i'), '<meta name="tags" content="' + escapeHtml(tags.join(', ')) + '">');
+        } else {
+          updated = updated.replace('<head>', '<head>\n  <meta name="tags" content="' + escapeHtml(tags.join(', ')) + '">');
+        }
+        // 4. Update window.LESSON_TAGS
+        if (new RegExp('window\\.LESSON_TAGS', 'i').test(updated)) {
+          updated = updated.replace(new RegExp('window\\.LESSON_TAGS\\s*=\\s*\\[[^\\]]*\\];?', 'i'), 'window.LESSON_TAGS = ' + JSON.stringify(tags) + ';');
+        } else {
+          updated = updated.replace('</head>', '  <' + 'script>window.LESSON_TAGS = ' + JSON.stringify(tags) + ';<' + '/script>\n</head>');
+        }
+        // 5. Update note-content
+        const startMarker = '<div class="note-content markdown-content">';
+        const sIdx = updated.indexOf(startMarker);
+        const eIdx = updated.indexOf('</div>', sIdx);
+        if (sIdx !== -1 && eIdx !== -1) {
+          updated = updated.substring(0, sIdx + startMarker.length) + markdown + updated.substring(eIdx);
+        }
+        htmlContent = updated;
+      } else {
+        htmlContent = buildFullNoteHtml(title, tags, markdown, SITE_INDEX_NAME, filename);
+      }
+
+      const encoded = btoa(unescape(encodeURIComponent(htmlContent)));
+
+      try {
+        const res = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + filename, {
+          method: 'PUT',
+          headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Edit post ' + filename, content: encoded, sha: sha })
+        });
+        if (!res.ok) throw new Error('Save failed: ' + res.statusText);
+
+        const cleanExcerpt = String(markdown || '').replace(/[#*_~()\[\]><]/g, ' ').replace(new RegExp('\x60', 'g'), ' ').replace(/\s+/g, ' ').trim();
+
+        // Auto-update social preview cards (PNG for Discord/Twitter and SVG fallback)
+        try {
+          const ogPng = buildOpenGraphPngBase64(title, tags, SITE_INDEX_NAME, 'light', cleanExcerpt);
+          if (ogPng) {
+            const ogPngPath = 'og-images/' + filename.replace('.html', '') + '.png';
+            let ogPngSha = null;
+            try {
+              const checkPng = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + ogPngPath, {
+                headers: { 'Authorization': 'token ' + token }
+              });
+              if (checkPng.ok) ogPngSha = (await checkPng.json()).sha;
+            } catch(e){}
+
+            const ogPngBody = { message: 'Update social PNG card for ' + title, content: ogPng };
+            if (ogPngSha) ogPngBody.sha = ogPngSha;
+
+            await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + ogPngPath, {
+              method: 'PUT',
+              headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+              body: JSON.stringify(ogPngBody)
+            });
+          }
+        } catch(e){}
+
+        try {
+          const ogSvg = buildOpenGraphSvg(title, tags, SITE_INDEX_NAME, 'light', cleanExcerpt);
+          const ogEncoded = btoa(unescape(encodeURIComponent(ogSvg)));
+          const ogPath = 'og-images/' + filename.replace('.html', '') + '.svg';
+          let ogSha = null;
+          try {
+            const checkOg = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + ogPath, {
+              headers: { 'Authorization': 'token ' + token }
+            });
+            if (checkOg.ok) ogSha = (await checkOg.json()).sha;
+          } catch(e){}
+
+          const ogBody = { message: 'Update social card for ' + title, content: ogEncoded };
+          if (ogSha) ogBody.sha = ogSha;
+
+          await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/' + ogPath, {
+            method: 'PUT',
+            headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(ogBody)
+          });
+        } catch(e){}
+
+        // Auto-update navbar.json if necessary to include new tags
+        try {
+          const navResp = await fetch('https://raw.githubusercontent.com/' + GITHUB_USER + '/' + REPO_NAME + '/main/navbar.json?v=' + Date.now());
+          let navList = navResp.ok ? await navResp.json() : [];
+          let updatedNav = false;
+          tags.forEach(tg => {
+            if (!navList.find(n => (n.title && n.title.toLowerCase() === tg.toLowerCase()) || (Array.isArray(n.tags) && n.tags.map(x=>x.toLowerCase()).includes(tg.toLowerCase())))) {
+              navList.push({ title: tg, tags: [tg] });
+              updatedNav = true;
+            }
+          });
+          if (updatedNav) {
+            const navCheck = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/navbar.json', { headers: { 'Authorization': 'token ' + token } });
+            let navSha = navCheck.ok ? (await navCheck.json()).sha : null;
+            const navBody = { message: 'Auto update navbar tags', content: btoa(unescape(encodeURIComponent(JSON.stringify(navList, null, 2)))) };
+            if (navSha) navBody.sha = navSha;
+            await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/navbar.json', { method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(navBody) });
+          }
+        } catch(e){}
+
+        alert('Saved post with full theme layout, tags, and social preview card successfully!');
+        closeEditModal();
+        fetchRepoData();
+      } catch(e) { alert('Error saving: ' + e.message); }
+    }
+
+    function updateNavbarRowTitle(idx, val) {
+      if (navbarData[idx]) navbarData[idx].title = val;
+    }
+    function updateNavbarRowTags(idx, val) {
+      if (navbarData[idx]) navbarData[idx].tags = val.split(',').map(t => t.trim()).filter(Boolean);
+    }
+
+    function renderNavbarRows() {
+      const container = document.getElementById('navbarListContainer');
+      if (navbarData.length === 0) navbarData = [{ title: 'Notes', tags: ['Notes'] }];
+      let html = '';
+      navbarData.forEach((item, idx) => {
+        const tagsStr = Array.isArray(item.tags) ? item.tags.join(', ') : (item.tag || '');
+        html += '<div class="nav-item-row">' +
+          '<div style="flex: 1;"><label class="form-label">Tab Title</label><input type="text" class="form-input" value="' + (item.title || '') + '" data-idx="' + idx + '" onchange="updateNavbarRowTitle(Number(this.dataset.idx), this.value)" /></div>' +
+          '<div style="flex: 2;"><label class="form-label">Target Tags (matching posts with any of these tags)</label><input type="text" class="form-input" value="' + tagsStr + '" data-idx="' + idx + '" onchange="updateNavbarRowTags(Number(this.dataset.idx), this.value)" /></div>' +
+          '<button class="btn-action btn-danger" style="margin-top: 24px;" data-idx="' + idx + '" onclick="removeNavbarRow(Number(this.dataset.idx))">✕</button>' +
+        '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function addNavbarRow() {
+      navbarData.push({ title: 'New Tab', tags: ['Python'] });
+      renderNavbarRows();
+    }
+    function removeNavbarRow(idx) {
+      navbarData.splice(idx, 1);
+      renderNavbarRows();
+    }
+
+    async function saveNavbarConfig() {
+      const token = getToken();
+      if (!token) return openTokenModal();
+
+      let sha = null;
+      try {
+        const checkRes = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/navbar.json', {
+          headers: { 'Authorization': 'token ' + token }
+        });
+        if (checkRes.ok) sha = (await checkRes.json()).sha;
+      } catch(e){}
+
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(navbarData, null, 2))));
+      const body = { message: 'Update navbar.json configuration', content: content };
+      if (sha) body.sha = sha;
+
+      try {
+        const res = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/navbar.json', {
+          method: 'PUT',
+          headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('Save navbar.json failed');
+        alert('Navbar configuration published successfully!');
+      } catch(e) { alert('Error: ' + e.message); }
+    }
+
+    function renderGuestbookUI() {
+      document.getElementById('gbEnabledCheck').checked = guestbookData.enabled !== false;
+      document.getElementById('gbTitleInput').value = guestbookData.title || 'Discussion & Feedback';
+      const container = document.getElementById('guestbookFeedContainer');
+      const entries = guestbookData.entries || [];
+      if (entries.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted);">No entries submitted yet.</p>';
+        return;
+      }
+      let html = '';
+      entries.forEach((e, idx) => {
+        html += '<div class="guestbook-item">' +
+          '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
+            '<strong class="gb-author" style="color: var(--accent);">' + escapeHtml(e.author || 'Anonymous') + '</strong>' +
+            '<button class="btn-action btn-danger" data-idx="' + idx + '" onclick="deleteGuestbookEntry(Number(this.dataset.idx))">Delete</button>' +
+          '</div>' +
+          '<div class="gb-date" style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">' + escapeHtml(e.date || '') + '</div>' +
+          '<div class="gb-text" style="color: var(--text-primary); font-size: 0.9rem;">' + escapeHtml(e.message || '') + '</div>' +
+        '</div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function deleteGuestbookEntry(idx) {
+      if (guestbookData.entries && guestbookData.entries[idx]) {
+        guestbookData.entries.splice(idx, 1);
+        renderGuestbookUI();
+      }
+    }
+
+    async function saveGuestbookConfig() {
+      guestbookData.enabled = document.getElementById('gbEnabledCheck').checked;
+      guestbookData.title = document.getElementById('gbTitleInput').value.trim();
+
+      const token = getToken();
+      if (!token) return openTokenModal();
+
+      let sha = null;
+      try {
+        const checkRes = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/guestbook.json', {
+          headers: { 'Authorization': 'token ' + token }
+        });
+        if (checkRes.ok) sha = (await checkRes.json()).sha;
+      } catch(e){}
+
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(guestbookData, null, 2))));
+      const body = { message: 'Update guestbook.json', content: content };
+      if (sha) body.sha = sha;
+
+      try {
+        const res = await fetch('https://api.github.com/repos/' + GITHUB_USER + '/' + REPO_NAME + '/contents/guestbook.json', {
+          method: 'PUT',
+          headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('Save guestbook.json failed: ' + res.statusText);
+        // Clear local storage copy now that it is synced to GitHub
+        try { localStorage.removeItem('atlas-guestbook-local-' + REPO_NAME); } catch(e){}
+        alert('Guestbook settings and entries saved to GitHub repository!');
+        fetchRepoData();
+      } catch(e) { alert('Error: ' + e.message); }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchRepoData);
+  </script>
+</body>
+</html>
